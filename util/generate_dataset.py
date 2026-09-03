@@ -4,8 +4,8 @@ import time
 import urllib.request
 import pandas as pd
 
-OUTPUT_CSV = "data/gate_1000_questions.csv"
-TARGET_TOTAL_QUESTIONS = 1000
+OUTPUT_CSV = "data/GATE_800_Questions_Raw.csv"
+TARGET_TOTAL_QUESTIONS = 800
 BATCH_SIZE = 1  
 OLLAMA_URL = "http://localhost:11434/api/chat"
 MODEL_NAME = "llama3.1:8b"

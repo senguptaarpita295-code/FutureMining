@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 
-CSV_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "gate_1000_questions.csv")
+CSV_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "GATE_800_Questions_Classified.csv")
 
 def verify_dataset_integrity():
     if not os.path.exists(CSV_PATH):
