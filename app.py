@@ -12,6 +12,7 @@ import struct
 import tempfile
 import wave
 from pathlib import Path
+import streamlit.components.v1 as components
 
 import pandas as pd
 import streamlit as st
@@ -187,28 +188,34 @@ AUDIO_SOURCES = {
 
 
 def play_sound(event: str | None) -> None:
-
-    if not event:
+    if not event or not st.session_state.get("sound_enabled", True):
         return
 
-    if not st.session_state.get("sound_enabled", True):
+    audio_source = AUDIO_SOURCES.get(event)
+
+    if not audio_source:
         return
 
-    st.markdown(
+    components.html(
         f"""
-        <audio
-            autoplay
-            preload="auto"
-            aria-hidden="true"
-            style="display:none"
-        >
-            <source
-                src="{AUDIO_SOURCES[event]}"
-                type="audio/wav"
-            >
-        </audio>
+        <html>
+        <body style="margin:0;padding:0;background:transparent;">
+            <audio autoplay>
+                <source src="{audio_source}" type="audio/wav">
+            </audio>
+
+            <script>
+                const audio = document.querySelector("audio");
+                if (audio) {{
+                    audio.volume = 0.8;
+                    audio.play().catch(() => {{}});
+                }}
+            </script>
+        </body>
+        </html>
         """,
-        unsafe_allow_html=True,
+        height=1,
+        scrolling=False,
     )
 
 
