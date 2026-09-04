@@ -16,6 +16,8 @@ import streamlit.components.v1 as components
 
 import pandas as pd
 import streamlit as st
+import api_client
+import examgoal
 
 
 # ============================================================
@@ -2371,7 +2373,13 @@ def format_math_text(value: object) -> str:
 # ============================================================
 
 def load_questions() -> pd.DataFrame:
-    """Load the current CSV on every run."""
+    """Load questions from FastAPI (Supabase) with local CSV fallback."""
+    try:
+        api_data = api_client.fetch_questions(limit=1000)
+        if api_data and len(api_data) >= 50:
+            return pd.DataFrame(api_data)
+    except Exception:
+        pass
 
     source_path = DATA_PATH
 
@@ -2598,7 +2606,13 @@ def load_questions() -> pd.DataFrame:
 # ============================================================
 
 def load_review_queue() -> set[str]:
-    """Load flagged question IDs."""
+    """Load flagged question IDs from FastAPI/Supabase with JSON fallback."""
+    try:
+        api_flags = api_client.get_flagged_question_ids()
+        if api_flags:
+            return api_flags
+    except Exception:
+        pass
 
     if not REVIEW_QUEUE_PATH.exists():
         return set()
@@ -2655,7 +2669,13 @@ def load_review_queue() -> set[str]:
 def save_review_queue(
     flagged_questions: set[str],
 ) -> None:
-    """Persist flagged question IDs atomically."""
+    """Persist flagged question IDs to Supabase and atomically to disk."""
+    for qid in flagged_questions:
+        try:
+            if str(qid).isdigit():
+                api_client.flag_question_server(int(qid), "Flagged in Millionaire challenge")
+        except Exception:
+            pass
 
     REVIEW_QUEUE_PATH.parent.mkdir(
         parents=True,
@@ -3152,6 +3172,21 @@ def show_ladder() -> None:
 
 with st.sidebar:
 
+    backend_status = api_client.get_api_status()
+    if backend_status:
+        st.success("🟢 FastAPI + Supabase: **Live** (1,000 Qs)")
+    else:
+        st.warning("🟡 Standalone Mode: Local CSV (800 Qs)")
+
+    app_mode = st.radio(
+        "🎯 Select Mode:",
+        ["🎮 Millionaire Challenge", "📚 ExamGoal Practice", "⏱️ ExamGoal GATE Mock Test"],
+        index=0,
+        key="global_app_mode",
+    )
+
+    st.divider()
+
     depth_nodes = []
 
 
@@ -3633,417 +3668,474 @@ st.markdown(
 # MAIN LAYOUT
 # ============================================================
 
-stage, ladder = st.columns(
-    [3.5, 1.25],
-    gap="medium",
-)
+current_mode = st.session_state.get("global_app_mode", "🎮 Millionaire Challenge")
+
+if current_mode == "📚 ExamGoal Practice":
+    examgoal.render_practice_mode(question_frame)
+
+elif current_mode == "⏱️ ExamGoal GATE Mock Test":
+    examgoal.render_mock_test_mode(question_frame)
+
+else:
+    stage, ladder = st.columns(
+        [3.5, 1.25],
+        gap="medium",
+    )
 
 
-# ============================================================
-# STAGE
-# ============================================================
+    # ============================================================
+    # STAGE
+    # ============================================================
 
-with stage:
-
-    with st.container(border=True):
-
-        st.markdown(
-            '<div class="stage-header">'
-
-            '<div>'
-
-            '<div class="stage-kicker">'
-            'Live challenge · round 01 · your move'
-            '</div>'
-
-            '<div class="stage-title">'
-            'Make the next decision count.'
-            '</div>'
-
-            '</div>'
-
-            f'<div class="stage-meta">'
-            f'Question '
-            f'<strong>{current_level:02d} / 15</strong>'
-            f'<br>'
-            f'Current prize '
-            f'<strong>'
-            f'{PRIZES[current_level - 1]}'
-            f'</strong>'
-            f'</div>'
-
-            '</div>',
-
-            unsafe_allow_html=True,
-        )
-
-
-        st.markdown(
-            f'<div class="progress-track">'
-
-            f'<div class="progress-fill" '
-            f'style="width:'
-            f'{(current_level / 15) * 100:.2f}%">'
-            f'</div>'
-
-            f'</div>',
-
-            unsafe_allow_html=True,
-        )
-
+    with stage:
 
         with st.container(border=True):
 
             st.markdown(
-                '<span class="question-card-marker">'
-                '</span>'
+                '<div class="stage-header">'
 
-                f'<div class="question-kicker">'
-                f'{html.escape(current_question["subject"])}'
-                f' · '
-                f'{html.escape(current_question["topic"])}'
+                '<div>'
+
+                '<div class="stage-kicker">'
+                'Live challenge · round 01 · your move'
+                '</div>'
+
+                '<div class="stage-title">'
+                'Make the next decision count.'
+                '</div>'
+
+                '</div>'
+
+                f'<div class="stage-meta">'
+                f'Question '
+                f'<strong>{current_level:02d} / 15</strong>'
+                f'<br>'
+                f'Current prize '
+                f'<strong>'
+                f'{PRIZES[current_level - 1]}'
+                f'</strong>'
+                f'</div>'
+
+                '</div>',
+
+                unsafe_allow_html=True,
+            )
+
+
+            st.markdown(
+                f'<div class="progress-track">'
+
+                f'<div class="progress-fill" '
+                f'style="width:'
+                f'{(current_level / 15) * 100:.2f}%">'
+                f'</div>'
+
                 f'</div>',
 
                 unsafe_allow_html=True,
             )
 
 
-            st.markdown(
-                format_math_text(
-                    current_question["question"]
-                )
-            )
-
-
-        flag_col, flag_status_col = (
-            st.columns([1.15, 2.85])
-        )
-
-
-        with flag_col:
-
-            if st.button(
-                "⚑ Unflag question"
-                if current_question_flagged
-                else "⚑ Flag question",
-
-                use_container_width=True,
-
-                key=(
-                    f"flag_{current_question_key}_"
-                    f"{st.session_state.view_version}"
-                ),
-
-                help="Mark this question for review",
-            ):
-
-                if current_question_flagged:
-
-                    st.session_state.flagged_questions.discard(
-                        current_question_key
-                    )
-
-                else:
-
-                    st.session_state.flagged_questions.add(
-                        current_question_key
-                    )
-
-
-                save_review_queue(
-                    st.session_state.flagged_questions
-                )
-
-                st.rerun()
-
-
-        with flag_status_col:
-
-            st.markdown(
-                '<div class="flag-status">'
-
-                + (
-                    "Marked for review · thank you "
-                    "for keeping the seam clean."
-
-                    if current_question_flagged
-
-                    else
-                    "See a questionable prompt? "
-                    "Mark it for review."
-                )
-
-                + "</div>",
-
-                unsafe_allow_html=True,
-            )
-
-
-        # ====================================================
-        # ANSWER OPTIONS
-        # ====================================================
-
-        active_options = [
-            index
-
-            for index in range(4)
-
-            if index not in
-            st.session_state.removed_options
-        ]
-
-
-        option_labels = [
-
-            f"{OPTION_LETTERS[index]}  ·  "
-            f"{format_math_text(current_question['options'][index])}"
-
-            for index in active_options
-        ]
-
-
-        widget_key = (
-            f"answer_{current_level}_"
-            f"{current_question['id']}_"
-            f"{st.session_state.view_version}"
-        )
-
-
-        st.markdown(
-            '<div class="answer-label">'
-            'Choose one answer · '
-            'lock it when ready'
-            '</div>',
-
-            unsafe_allow_html=True,
-        )
-
-
-        selected_label = None
-
-
-        if st.session_state.answered:
-
-            review_items = []
-
-            correct_index = (
-                current_question["correct"]
-            )
-
-            selected_answer = (
-                st.session_state.selected_option
-            )
-
-
-            for index in active_options:
-
-                if index == correct_index:
-
-                    state_class = "correct"
-                    mark = "✓ CORRECT"
-
-                elif index == selected_answer:
-
-                    state_class = "wrong"
-                    mark = "✕ YOUR PICK"
-
-                else:
-
-                    state_class = "muted"
-                    mark = ""
-
-
-                review_items.append(
-                    '<div class='
-                    f'"answer-review-choice '
-                    f'{state_class}">'
-
-                    '<span '
-                    'class="answer-review-badge">'
-
-                    f'{OPTION_LETTERS[index]}'
-
-                    '</span>'
-
-                    '<span>'
-
-                    f'{html.escape(current_question["options"][index])}'
-
-                    '</span>'
-
-                    '<span '
-                    'class="answer-review-mark">'
-
-                    f'{mark}'
-
-                    '</span>'
-
-                    '</div>'
-                )
-
-
-            st.markdown(
-                '<div class="answer-review">'
-                + "".join(review_items)
-                + "</div>",
-
-                unsafe_allow_html=True,
-            )
-
-
-        else:
-
-            selected_label = st.radio(
-                "Answer choices",
-
-                option_labels,
-
-                index=None,
-
-                key=widget_key,
-
-                label_visibility="collapsed",
-            )
-
-
-        selected_index = None
-
-
-        if selected_label:
-
-            selected_index = active_options[
-                option_labels.index(
-                    selected_label
-                )
-            ]
-
-
-        # ====================================================
-        # LOCK ANSWER
-        # ====================================================
-
-        lock = st.button(
-            "Lock it in",
-
-            type="primary",
-
-            use_container_width=True,
-
-            disabled=st.session_state.answered,
-        )
-
-
-        if lock:
-
-            if selected_index is None:
-
-                st.warning(
-                    "Choose an answer before "
-                    "locking it."
-                )
-
-            else:
-
-                st.session_state.selected_option = (
-                    selected_index
-                )
-
-                st.session_state.answered = True
-
-                st.session_state.last_result = (
-                    selected_index
-                    == current_question["correct"]
-                )
-
-
-                st.session_state.sound_event = (
-
-                    "victory"
-
-                    if (
-                        st.session_state.last_result
-                        and current_level == 15
-                    )
-
-                    else "correct"
-
-                    if st.session_state.last_result
-
-                    else "wrong"
-                )
-
-
-                st.rerun()
-
-
-        # ====================================================
-        # RESULT
-        # ====================================================
-
-        if st.session_state.answered:
-
-            correct_index = (
-                current_question["correct"]
-            )
-
-
-            if st.session_state.last_result:
+            with st.container(border=True):
 
                 st.markdown(
-                    f'<div class="result-box good">'
+                    '<span class="question-card-marker">'
+                    '</span>'
 
-                    f'<div class="result-title">'
-                    'Correct answer locked.'
-                    '</div>'
-
-                    f'<div class="result-detail">'
-                    'You banked '
-                    f'{html.escape(PRIZES[current_level - 1])}. '
-                    'The next tier is ready.'
-                    '</div>'
-
-                    '</div>',
+                    f'<div class="question-kicker">'
+                    f'{html.escape(current_question["subject"])}'
+                    f' · '
+                    f'{html.escape(current_question["topic"])}'
+                    f'</div>',
 
                     unsafe_allow_html=True,
                 )
 
 
-                if current_level < 15:
+                st.markdown(
+                    format_math_text(
+                        current_question["question"]
+                    )
+                )
 
-                    if st.button(
-                        f"Continue to question "
-                        f"{current_level + 1:02d}  →",
 
-                        type="primary",
+            flag_col, flag_status_col = (
+                st.columns([1.15, 2.85])
+            )
 
-                        use_container_width=True,
-                    ):
 
-                        st.session_state.current_level += 1
+            with flag_col:
 
-                        st.session_state.selected_option = (
-                            None
+                if st.button(
+                    "⚑ Unflag question"
+                    if current_question_flagged
+                    else "⚑ Flag question",
+
+                    use_container_width=True,
+
+                    key=(
+                        f"flag_{current_question_key}_"
+                        f"{st.session_state.view_version}"
+                    ),
+
+                    help="Mark this question for review",
+                ):
+
+                    if current_question_flagged:
+
+                        st.session_state.flagged_questions.discard(
+                            current_question_key
                         )
 
-                        st.session_state.answered = False
+                    else:
 
-                        st.session_state.last_result = (
-                            None
+                        st.session_state.flagged_questions.add(
+                            current_question_key
                         )
 
-                        st.session_state.removed_options = (
-                            set()
+
+                    save_review_queue(
+                        st.session_state.flagged_questions
+                    )
+
+                    st.rerun()
+
+
+            with flag_status_col:
+
+                st.markdown(
+                    '<div class="flag-status">'
+
+                    + (
+                        "Marked for review · thank you "
+                        "for keeping the seam clean."
+
+                        if current_question_flagged
+
+                        else
+                        "See a questionable prompt? "
+                        "Mark it for review."
+                    )
+
+                    + "</div>",
+
+                    unsafe_allow_html=True,
+                )
+
+
+            # ====================================================
+            # ANSWER OPTIONS
+            # ====================================================
+
+            active_options = [
+                index
+
+                for index in range(4)
+
+                if index not in
+                st.session_state.removed_options
+            ]
+
+
+            option_labels = [
+
+                f"{OPTION_LETTERS[index]}  ·  "
+                f"{format_math_text(current_question['options'][index])}"
+
+                for index in active_options
+            ]
+
+
+            widget_key = (
+                f"answer_{current_level}_"
+                f"{current_question['id']}_"
+                f"{st.session_state.view_version}"
+            )
+
+
+            st.markdown(
+                '<div class="answer-label">'
+                'Choose one answer · '
+                'lock it when ready'
+                '</div>',
+
+                unsafe_allow_html=True,
+            )
+
+
+            selected_label = None
+
+
+            if st.session_state.answered:
+
+                review_items = []
+
+                correct_index = (
+                    current_question["correct"]
+                )
+
+                selected_answer = (
+                    st.session_state.selected_option
+                )
+
+
+                for index in active_options:
+
+                    if index == correct_index:
+
+                        state_class = "correct"
+                        mark = "✓ CORRECT"
+
+                    elif index == selected_answer:
+
+                        state_class = "wrong"
+                        mark = "✕ YOUR PICK"
+
+                    else:
+
+                        state_class = "muted"
+                        mark = ""
+
+
+                    review_items.append(
+                        '<div class='
+                        f'"answer-review-choice '
+                        f'{state_class}">'
+
+                        '<span '
+                        'class="answer-review-badge">'
+
+                        f'{OPTION_LETTERS[index]}'
+
+                        '</span>'
+
+                        '<span>'
+
+                        f'{html.escape(current_question["options"][index])}'
+
+                        '</span>'
+
+                        '<span '
+                        'class="answer-review-mark">'
+
+                        f'{mark}'
+
+                        '</span>'
+
+                        '</div>'
+                    )
+
+
+                st.markdown(
+                    '<div class="answer-review">'
+                    + "".join(review_items)
+                    + "</div>",
+
+                    unsafe_allow_html=True,
+                )
+
+
+            else:
+
+                selected_label = st.radio(
+                    "Answer choices",
+
+                    option_labels,
+
+                    index=None,
+
+                    key=widget_key,
+
+                    label_visibility="collapsed",
+                )
+
+
+            selected_index = None
+
+
+            if selected_label:
+
+                selected_index = active_options[
+                    option_labels.index(
+                        selected_label
+                    )
+                ]
+
+
+            # ====================================================
+            # LOCK ANSWER
+            # ====================================================
+
+            lock = st.button(
+                "Lock it in",
+
+                type="primary",
+
+                use_container_width=True,
+
+                disabled=st.session_state.answered,
+            )
+
+
+            if lock:
+
+                if selected_index is None:
+
+                    st.warning(
+                        "Choose an answer before "
+                        "locking it."
+                    )
+
+                else:
+
+                    st.session_state.selected_option = (
+                        selected_index
+                    )
+
+                    st.session_state.answered = True
+
+                    st.session_state.last_result = (
+                        selected_index
+                        == current_question["correct"]
+                    )
+
+
+                    st.session_state.sound_event = (
+
+                        "victory"
+
+                        if (
+                            st.session_state.last_result
+                            and current_level == 15
                         )
 
-                        st.session_state.view_version += 1
+                        else "correct"
 
-                        st.rerun()
+                        if st.session_state.last_result
+
+                        else "wrong"
+                    )
+
+
+                    st.rerun()
+
+
+            # ====================================================
+            # RESULT
+            # ====================================================
+
+            if st.session_state.answered:
+
+                correct_index = (
+                    current_question["correct"]
+                )
+
+
+                if st.session_state.last_result:
+
+                    st.markdown(
+                        f'<div class="result-box good">'
+
+                        f'<div class="result-title">'
+                        'Correct answer locked.'
+                        '</div>'
+
+                        f'<div class="result-detail">'
+                        'You banked '
+                        f'{html.escape(PRIZES[current_level - 1])}. '
+                        'The next tier is ready.'
+                        '</div>'
+
+                        '</div>',
+
+                        unsafe_allow_html=True,
+                    )
+
+
+                    if current_level < 15:
+
+                        if st.button(
+                            f"Continue to question "
+                            f"{current_level + 1:02d}  →",
+
+                            type="primary",
+
+                            use_container_width=True,
+                        ):
+
+                            st.session_state.current_level += 1
+
+                            st.session_state.selected_option = (
+                                None
+                            )
+
+                            st.session_state.answered = False
+
+                            st.session_state.last_result = (
+                                None
+                            )
+
+                            st.session_state.removed_options = (
+                                set()
+                            )
+
+                            st.session_state.view_version += 1
+
+                            st.rerun()
+
+
+                    else:
+
+                        if st.button(
+                            "Play a new challenge",
+
+                            type="primary",
+
+                            use_container_width=True,
+                        ):
+
+                            new_game()
 
 
                 else:
 
+                    correct_text = (
+                        current_question["options"][
+                            correct_index
+                        ]
+                    )
+
+
+                    st.markdown(
+                        f'<div class="result-box bad">'
+
+                        f'<div class="result-title">'
+                        'Not quite this time.'
+                        '</div>'
+
+                        f'<div class="result-detail">'
+
+                        'The correct answer was '
+
+                        f'<strong>'
+                        f'{OPTION_LETTERS[correct_index]}'
+                        f' · '
+                        f'{html.escape(correct_text)}'
+                        f'</strong>. '
+
+                        'Your best secured milestone '
+                        'is the previous safe floor.'
+
+                        '</div>'
+
+                        '</div>',
+
+                        unsafe_allow_html=True,
+                    )
+
+
                     if st.button(
-                        "Play a new challenge",
+                        "Try another challenge",
 
                         type="primary",
 
@@ -4053,60 +4145,12 @@ with stage:
                         new_game()
 
 
-            else:
+    # ============================================================
+    # LADDER
+    # ============================================================
 
-                correct_text = (
-                    current_question["options"][
-                        correct_index
-                    ]
-                )
+    with ladder:
 
+        with st.container(border=True):
 
-                st.markdown(
-                    f'<div class="result-box bad">'
-
-                    f'<div class="result-title">'
-                    'Not quite this time.'
-                    '</div>'
-
-                    f'<div class="result-detail">'
-
-                    'The correct answer was '
-
-                    f'<strong>'
-                    f'{OPTION_LETTERS[correct_index]}'
-                    f' · '
-                    f'{html.escape(correct_text)}'
-                    f'</strong>. '
-
-                    'Your best secured milestone '
-                    'is the previous safe floor.'
-
-                    '</div>'
-
-                    '</div>',
-
-                    unsafe_allow_html=True,
-                )
-
-
-                if st.button(
-                    "Try another challenge",
-
-                    type="primary",
-
-                    use_container_width=True,
-                ):
-
-                    new_game()
-
-
-# ============================================================
-# LADDER
-# ============================================================
-
-with ladder:
-
-    with st.container(border=True):
-
-        show_ladder()
+            show_ladder()
