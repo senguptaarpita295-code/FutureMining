@@ -3172,15 +3172,69 @@ def show_ladder() -> None:
 
 with st.sidebar:
 
-    backend_status = api_client.get_api_status()
-    if backend_status:
+    conn_mode = api_client.get_connection_mode()
+    if conn_mode == "fastapi":
         st.success("🟢 FastAPI + Supabase: **Live** (1,000 Qs)")
+    elif conn_mode == "direct_db":
+        st.success("🟢 Supabase PostgreSQL: **Live** (1,000 Qs)")
     else:
         st.warning("🟡 Standalone Mode: Local CSV (800 Qs)")
 
+    # User Profile / Authentication Section
+    user = st.session_state.get("user")
+    if user:
+        with st.container(border=True):
+            u_col1, u_col2 = st.columns([3, 1])
+            with u_col1:
+                st.markdown(f"**👤 {user.get('full_name') or user.get('username')}**")
+                st.caption(f"@{user.get('username')} · GATE Mining")
+            with u_col2:
+                if st.button("🚪", help="Logout"):
+                    st.session_state.user = None
+                    st.toast("Logged out successfully.")
+                    st.rerun()
+    else:
+        with st.expander("🔐 Login / Register (Save Progress)", expanded=False):
+            auth_tab1, auth_tab2 = st.tabs(["Login", "Sign Up"])
+            with auth_tab1:
+                l_user = st.text_input("Username", key="login_username")
+                l_pass = st.text_input("Password", type="password", key="login_password")
+                if st.button("Log In", type="primary", use_container_width=True, key="btn_login_submit"):
+                    if l_user and l_pass:
+                        success, msg, udata = api_client.login_user(l_user, l_pass)
+                        if success:
+                            st.session_state.user = udata
+                            st.toast(msg, icon="🎉")
+                            st.rerun()
+                        else:
+                            st.error(msg)
+                    else:
+                        st.warning("Please enter username and password")
+            with auth_tab2:
+                r_user = st.text_input("Choose Username", key="reg_username")
+                r_pass = st.text_input("Choose Password", type="password", key="reg_password")
+                r_name = st.text_input("Full Name (Optional)", key="reg_name")
+                r_email = st.text_input("Email (Optional)", key="reg_email")
+                if st.button("Create Account", type="primary", use_container_width=True, key="btn_reg_submit"):
+                    if r_user and r_pass:
+                        success, msg, udata = api_client.register_user(r_user, r_pass, r_name, r_email)
+                        if success:
+                            st.session_state.user = udata
+                            st.toast(msg, icon="🎉")
+                            st.rerun()
+                        else:
+                            st.error(msg)
+                    else:
+                        st.warning("Please enter username and password")
+
     app_mode = st.radio(
         "🎯 Select Mode:",
-        ["🎮 Millionaire Challenge", "📚 ExamGoal Practice", "⏱️ ExamGoal GATE Mock Test"],
+        [
+            "🎮 Millionaire Challenge",
+            "📚 ExamGoal Practice",
+            "⏱️ ExamGoal GATE Mock Test",
+            "📊 GATE Analytics & History",
+        ],
         index=0,
         key="global_app_mode",
     )
@@ -3676,6 +3730,9 @@ if current_mode == "📚 ExamGoal Practice":
 elif current_mode == "⏱️ ExamGoal GATE Mock Test":
     examgoal.render_mock_test_mode(question_frame)
 
+elif current_mode == "📊 GATE Analytics & History":
+    examgoal.render_analytics_dashboard()
+
 else:
     stage, ladder = st.columns(
         [3.5, 1.25],
@@ -3999,6 +4056,27 @@ else:
                         == current_question["correct"]
                     )
 
+                    user = st.session_state.get("user")
+                    if user and "id" in current_question:
+                        api_client.record_question_attempt(
+                            user_id=user["id"],
+                            question_id=int(current_question["id"]),
+                            selected_option=selected_index,
+                            is_correct=st.session_state.last_result,
+                            mode="millionaire",
+                        )
+                        if not st.session_state.last_result or current_level == 15:
+                            final_score = float(current_level if st.session_state.last_result else max(0, current_level - 1))
+                            api_client.save_test_session(
+                                user_id=user["id"],
+                                mode="millionaire",
+                                score=final_score,
+                                total_questions=15,
+                                correct_count=int(final_score),
+                                incorrect_count=0 if st.session_state.last_result else 1,
+                                unattempted_count=max(0, 15 - current_level),
+                                details_json=json.dumps({"prize": PRIZES[current_level - 1] if st.session_state.last_result else (PRIZES[current_level - 2] if current_level > 1 else "₹0")})
+                            )
 
                     st.session_state.sound_event = (
 
