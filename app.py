@@ -2372,19 +2372,14 @@ def format_math_text(value: object) -> str:
 # LOAD QUESTIONS
 # ============================================================
 
+@st.cache_data(show_spinner=False)
 def load_questions() -> pd.DataFrame:
-    """Load questions from FastAPI (Supabase) with local CSV fallback."""
-    try:
-        api_data = api_client.fetch_questions(limit=1000)
-        if api_data and len(api_data) >= 50:
-            return pd.DataFrame(api_data)
-    except Exception:
-        pass
-
-    source_path = DATA_PATH
+    """Load questions instantly from local dataset with caching (0.0s lag)."""
+    # 1. Prefer exported comprehensive dataset
+    q1000_path = Path(__file__).parent / "data" / "gate_questions_1000.csv"
+    source_path = q1000_path if q1000_path.exists() else DATA_PATH
 
     using_legacy_compatibility_bank = False
-
 
     if (
         not source_path.exists()
@@ -2393,14 +2388,11 @@ def load_questions() -> pd.DataFrame:
         source_path = LEGACY_DATA_PATH
         using_legacy_compatibility_bank = True
 
-
     if not source_path.exists():
-
         raise FileNotFoundError(
-            "Classified dataset not found. Add "
+            "Question dataset not found. Add "
             f"{DATA_PATH.name} to the data folder."
         )
-
 
     frame = pd.read_csv(
         source_path,
@@ -2605,8 +2597,9 @@ def load_questions() -> pd.DataFrame:
 # REVIEW QUEUE
 # ============================================================
 
+@st.cache_data(ttl=120, show_spinner=False)
 def load_review_queue() -> set[str]:
-    """Load flagged question IDs from FastAPI/Supabase with JSON fallback."""
+    """Load flagged question IDs from FastAPI/Supabase with JSON fallback (cached)."""
     try:
         api_flags = api_client.get_flagged_question_ids()
         if api_flags:
@@ -3231,8 +3224,8 @@ with st.sidebar:
         "🎯 Select Mode:",
         [
             "🎮 Millionaire Challenge",
-            "📚 ExamGoal Practice",
-            "⏱️ ExamGoal GATE Mock Test",
+            "📚 GATEMining Practice",
+            "⏱️ GATEMining Mock Test",
             "📊 GATE Analytics & History",
         ],
         index=0,
@@ -3724,10 +3717,10 @@ st.markdown(
 
 current_mode = st.session_state.get("global_app_mode", "🎮 Millionaire Challenge")
 
-if current_mode == "📚 ExamGoal Practice":
+if current_mode in ("📚 GATEMining Practice", "📚 ExamGoal Practice"):
     examgoal.render_practice_mode(question_frame)
 
-elif current_mode == "⏱️ ExamGoal GATE Mock Test":
+elif current_mode in ("⏱️ GATEMining Mock Test", "⏱️ ExamGoal GATE Mock Test"):
     examgoal.render_mock_test_mode(question_frame)
 
 elif current_mode == "📊 GATE Analytics & History":
