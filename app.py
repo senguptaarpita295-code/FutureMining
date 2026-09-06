@@ -29,6 +29,10 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
+if "theme_mode" not in st.session_state:
+    # Dark mode remains the default.
+    st.session_state.theme_mode = "dark"
+
 
 # ============================================================
 # PATHS / CONSTANTS
@@ -73,6 +77,7 @@ PRIZES = [
 ]
 
 OPTION_LETTERS = ("A", "B", "C", "D")
+
 
 
 # ============================================================
@@ -424,29 +429,85 @@ st.markdown(
         }
 
 
-        /* ====================================================
-           TOP BAR
-        ==================================================== */
-
-        .topbar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-
-            min-height: 58px;
-            margin-bottom: 2.1rem;
-            padding: 0 0 1.35rem;
-
-            border-bottom: 1px solid var(--rule);
-
-            transition: border-color .25s ease;
-        }
-
-
-        .topbar:hover {
-            border-color: rgba(120, 224, 195, .40);
-        }
-
+        # # ============================================================
+        # # TOP BAR
+        # # ============================================================
+        
+        # theme_icon = (
+        #     "☀️"
+        #     if st.session_state.theme_mode == "dark"
+        #     else "🌙"
+        # )
+        
+        # theme_help = (
+        #     "Switch to Light Mode"
+        #     if st.session_state.theme_mode == "dark"
+        #     else "Switch to Dark Mode"
+        # )
+        
+        # header_brand_col, header_toggle_col = st.columns(
+        #     [8, 1],
+        #     gap="small",
+        # )
+        
+        # with header_brand_col:
+        
+        #     st.markdown(
+        #         '<div class="topbar">'
+        
+        #         '<div class="brand-lockup">'
+        
+        #         '<div class="brand-mark">'
+        #         'FM'
+        #         '</div>'
+        
+        #         '<div>'
+        
+        #         '<div class="brand-name">'
+        #         'Future<span>Mining</span>'
+        #         '</div>'
+        
+        #         '<div class="brand-note">'
+        #         'The field test of mining intelligence'
+        #         '</div>'
+        
+        #         '</div>'
+        
+        #         '</div>'
+        
+        #         '<div class="live-label">'
+        
+        #         '<span class="live-dot"></span>'
+        
+        #         'GATE question bank · live round'
+        
+        #         '</div>'
+        
+        #         '</div>',
+        #         unsafe_allow_html=True,
+        #     )
+        
+        # with header_toggle_col:
+        
+        #     st.markdown(
+        #         '<span class="theme-toggle-anchor" '
+        #         'aria-hidden="true"></span>',
+        #         unsafe_allow_html=True,
+        #     )
+        
+        #     if st.button(
+        #         theme_icon,
+        #         key="theme_toggle_button",
+        #         help=theme_help,
+        #         use_container_width=False,
+        #     ):
+        #         st.session_state.theme_mode = (
+        #             "light"
+        #             if st.session_state.theme_mode == "dark"
+        #             else "dark"
+        #         )
+        
+        #         st.rerun()
 
         /* ====================================================
            SIDEBAR BRAND
@@ -2179,7 +2240,685 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
+# ============================================================
+# LIGHT MODE OVERRIDES
+# ============================================================
 
+
+
+if st.session_state.theme_mode == "light":
+    st.markdown(
+        """
+        <style>
+            :root {
+                --ink: #29272b;
+                --muted: #706b6b;
+                --quiet: #918b88;
+
+                --void: #f3f2ef;
+                --surface: #ffffff;
+                --surface-raised: #fffefa;
+                --surface-soft: #eeeae6;
+
+                --blue: #65001d;
+                --cyan: #6f8b79;
+
+                --gold: #8d6a3e;
+                --gold-light: #d6bc87;
+
+                --green: #6f8b79;
+                --red: #7c1635;
+
+                --rule: rgba(101, 0, 29, .18);
+            }
+
+            html,
+            body {
+                background: #f3f2ef !important;
+                color: #29272b !important;
+                color-scheme: light;
+            }
+
+            .stApp {
+                background:
+                    radial-gradient(
+                        ellipse at 70% -20%,
+                        rgba(101, 0, 29, .045),
+                        transparent 32rem
+                    ),
+                    linear-gradient(
+                        135deg,
+                        rgba(101, 0, 29, .018) 25%,
+                        transparent 25%
+                    ) 0 0 / 8px 8px,
+                    #f3f2ef !important;
+
+                color: #29272b !important;
+            }
+
+            /* =================================================
+               BURGUNDY SIDEBAR
+            ================================================= */
+
+            section[data-testid="stSidebar"] {
+                background:
+                    linear-gradient(
+                        180deg,
+                        #76001f 0%,
+                        #620019 100%
+                    ) !important;
+
+                border-right:
+                    1px solid rgba(238, 213, 169, .42) !important;
+
+                color: #f8ead5 !important;
+            }
+
+            section[data-testid="stSidebar"] * {
+                border-color: rgba(238, 213, 169, .24);
+            }
+
+            section[data-testid="stSidebar"]
+            .sidebar-brand-name,
+            section[data-testid="stSidebar"]
+            .sidebar-brand-note,
+            section[data-testid="stSidebar"]
+            .mission-title,
+            section[data-testid="stSidebar"]
+            .sidebar-hud-label,
+            section[data-testid="stSidebar"]
+            .sidebar-hud-value,
+            section[data-testid="stSidebar"]
+            .sidebar-hud-sub,
+            section[data-testid="stSidebar"]
+            .sidebar-stat-label,
+            section[data-testid="stSidebar"]
+            .sidebar-stat-value,
+            section[data-testid="stSidebar"]
+            .sidebar-section-title,
+            section[data-testid="stSidebar"]
+            .sidebar-hud,
+            section[data-testid="stSidebar"]
+            .safety-note,
+            section[data-testid="stSidebar"]
+            .flag-summary {
+                color: #f8ead5 !important;
+            }
+
+            section[data-testid="stSidebar"]
+            .sidebar-brand-name span {
+                color: #e0bd7b !important;
+            }
+
+            section[data-testid="stSidebar"]
+            .mission-title span,
+            section[data-testid="stSidebar"]
+            .depth-labels,
+            section[data-testid="stSidebar"]
+            .sidebar-hud-sub {
+                color: #d7b77f !important;
+            }
+
+            .sidebar-brand-mark {
+                border-color: #e8c98e !important;
+
+                background:
+                    linear-gradient(
+                        145deg,
+                        #fff8eb,
+                        #ead9bd
+                    ) !important;
+
+                color: #65001d !important;
+                box-shadow: 0 5px 14px rgba(31, 0, 11, .18);
+            }
+
+            .sidebar-hud {
+                border-color: rgba(238, 213, 169, .32) !important;
+                background: rgba(71, 0, 21, .42) !important;
+                box-shadow: none !important;
+            }
+
+            .sidebar-stat {
+                border-color: rgba(238, 213, 169, .24) !important;
+                background: rgba(83, 0, 24, .45) !important;
+            }
+
+            .sidebar-stat:hover {
+                border-color: #e2bd7c !important;
+                background: rgba(104, 0, 29, .72) !important;
+            }
+
+            .depth-node {
+                background: rgba(246, 223, 183, .28) !important;
+            }
+
+            .depth-node.passed,
+            .depth-node.current {
+                background: #e4c488 !important;
+                box-shadow: 0 0 8px rgba(228, 196, 136, .6) !important;
+            }
+
+            /* =================================================
+               MAIN HEADER
+            ================================================= */
+
+            .topbar {
+                border-color: rgba(101, 0, 29, .18) !important;
+            }
+
+            .brand-mark {
+                border-color: #987144 !important;
+
+                background:
+                    linear-gradient(
+                        145deg,
+                        #fffaf0,
+                        #eadcc7
+                    ) !important;
+
+                color: #65001d !important;
+
+                box-shadow:
+                    5px 5px 0 rgba(101, 0, 29, .10),
+                    0 0 26px rgba(101, 0, 29, .08);
+            }
+
+            .brand-name {
+                color: #29272b !important;
+            }
+
+            .brand-name span {
+                color: #9a7744 !important;
+            }
+
+            .brand-note,
+            .live-label {
+                color: #6f6866 !important;
+            }
+
+            .live-dot {
+                background: #6f8b79 !important;
+                box-shadow: 0 0 10px rgba(111, 139, 121, .62) !important;
+            }
+
+            /* =================================================
+               MAIN CARDS
+            ================================================= */
+
+            [data-testid="stVerticalBlockBorderWrapper"] {
+                border-color: #d7d1cb !important;
+
+                background:
+                    linear-gradient(
+                        145deg,
+                        #ffffff,
+                        #f8f6f2
+                    ) !important;
+
+                box-shadow:
+                    0 16px 36px rgba(63, 48, 39, .08),
+                    inset 0 1px 0 rgba(255, 255, 255, .92) !important;
+            }
+
+            [data-testid="stVerticalBlockBorderWrapper"]:hover {
+                border-color: rgba(101, 0, 29, .38) !important;
+
+                box-shadow:
+                    0 22px 48px rgba(63, 48, 39, .12),
+                    inset 0 1px 0 #ffffff !important;
+            }
+
+            .stage-kicker,
+            .rail-kicker,
+            .question-kicker,
+            .answer-label {
+                color: #65001d !important;
+            }
+
+            .stage-title,
+            .rail-heading,
+            .ladder-title,
+            .ladder-caption {
+                color: #29272b !important;
+            }
+
+            .stage-meta {
+                color: #746e6c !important;
+            }
+
+            .stage-meta strong {
+                color: #6f8b79 !important;
+            }
+
+            .progress-track {
+                background: #e4dfda !important;
+            }
+
+            .progress-fill {
+                background:
+                    linear-gradient(
+                        90deg,
+                        #65001d,
+                        #a64b61
+                    ) !important;
+
+                box-shadow:
+                    0 0 14px rgba(101, 0, 29, .28) !important;
+            }
+
+            /* =================================================
+               QUESTION CARD
+            ================================================= */
+
+            .question-card {
+                border-color: #bca487 !important;
+
+                background:
+                    linear-gradient(
+                        145deg,
+                        #f5ecdf,
+                        #fffdfa
+                    ) !important;
+
+                box-shadow:
+                    inset 0 1px 0 #ffffff,
+                    0 12px 28px rgba(74, 53, 34, .08) !important;
+            }
+
+            div[data-testid="stVerticalBlockBorderWrapper"]:has(
+                .question-card-marker
+            ) {
+                border-color: #bca487 !important;
+
+                background:
+                    linear-gradient(
+                        145deg,
+                        #f5ecdf,
+                        #fffdfa
+                    ) !important;
+
+                box-shadow:
+                    inset 0 1px 0 #ffffff,
+                    0 14px 32px rgba(74, 53, 34, .08) !important;
+            }
+
+            div[data-testid="stVerticalBlockBorderWrapper"]:has(
+                .question-card-marker
+            )
+            [data-testid="stMarkdownContainer"] p {
+                color: #29272b !important;
+            }
+
+            /* =================================================
+               BUTTONS
+            ================================================= */
+
+            div[data-testid="stButton"] button {
+                border-color: #b9b0aa !important;
+                background: #ffffff !important;
+                color: #29272b !important;
+                box-shadow: 0 4px 12px rgba(63, 48, 39, .06) !important;
+            }
+
+            div[data-testid="stButton"] button:hover:not(:disabled) {
+                border-color: #65001d !important;
+                background: #fff8ee !important;
+                color: #65001d !important;
+                box-shadow: 0 8px 18px rgba(101, 0, 29, .14) !important;
+            }
+
+            div[data-testid="stButton"] button[kind="primary"],
+            div[data-testid="stButton"]
+            button[data-testid="stBaseButton-primary"],
+            [data-testid="stBaseButton-primary"] {
+                border-color: #65001d !important;
+
+                background:
+                    linear-gradient(
+                        90deg,
+                        #65001d,
+                        #850d31
+                    ) !important;
+
+                color: #fff8ed !important;
+
+                box-shadow:
+                    0 8px 20px rgba(101, 0, 29, .18) !important;
+            }
+
+            div[data-testid="stButton"] button[kind="primary"]:hover,
+            [data-testid="stBaseButton-primary"]:hover {
+                background: #4f0017 !important;
+                color: #ffffff !important;
+            }
+
+            /* =================================================
+               ANSWER OPTIONS
+            ================================================= */
+
+            div[data-testid="stRadio"]
+            div[role="radiogroup"]
+            label {
+                border-color: #c9c2bc !important;
+                background: #ffffff !important;
+                color: #514c4a !important;
+            }
+
+            div[data-testid="stRadio"]
+            div[role="radiogroup"]
+            label:hover {
+                border-color: #8b5262 !important;
+                background: #fffaf4 !important;
+                box-shadow: 0 7px 16px rgba(101, 0, 29, .08) !important;
+            }
+
+            div[data-testid="stRadio"]
+            div[role="radiogroup"]
+            label:has(input:checked) {
+                border-color: #65001d !important;
+
+                background:
+                    linear-gradient(
+                        110deg,
+                        #f4e7d8,
+                        #fffaf2
+                    ) !important;
+
+                box-shadow:
+                    0 0 0 1px rgba(101, 0, 29, .14),
+                    0 8px 18px rgba(101, 0, 29, .08) !important;
+            }
+
+            div[data-testid="stRadio"]
+            div[role="radiogroup"]
+            label p,
+            div[data-testid="stRadio"]
+            div[role="radiogroup"]
+            label span,
+            div[data-testid="stRadio"]
+            div[role="radiogroup"]
+            label div {
+                color: #3b383a !important;
+            }
+
+            /* =================================================
+               RESULTS
+            ================================================= */
+
+            .result-box.good {
+                border-color: #91ad9b !important;
+                background: #e6f0e8 !important;
+            }
+
+            .result-box.bad {
+                border-color: #c7a0aa !important;
+                background: #f2e7ea !important;
+            }
+
+            .result-title {
+                color: #29272b !important;
+            }
+
+            .result-detail {
+                color: #514b4b !important;
+            }
+
+            /* =================================================
+               ANSWER REVIEW
+            ================================================= */
+
+            .answer-review-choice {
+                border-color: #c9c2bc !important;
+                background: #ffffff !important;
+                color: #514c4a !important;
+            }
+
+            .answer-review-choice.correct {
+                border-color: #91ad9b !important;
+                background: #e1eee4 !important;
+                color: #386047 !important;
+            }
+
+            .answer-review-choice.wrong {
+                border-color: #c59aa5 !important;
+                background: #f0e1e5 !important;
+                color: #7b3044 !important;
+            }
+
+            /* =================================================
+               PRIZE LADDER
+            ================================================= */
+
+            .ladder-item {
+                color: #77716e !important;
+            }
+
+            .ladder-item .level {
+                color: #918986 !important;
+            }
+
+            .ladder-item.safe .level,
+            .ladder-item.safe .prize {
+                color: #65001d !important;
+            }
+
+            .ladder-item.passed {
+                color: #6f8b79 !important;
+            }
+
+            .ladder-item.current {
+                color: #fff8ed !important;
+
+                background:
+                    linear-gradient(
+                        90deg,
+                        #65001d,
+                        #850d31
+                    ) !important;
+
+                box-shadow:
+                    0 8px 20px rgba(101, 0, 29, .18) !important;
+            }
+
+            .ladder-item.current .level,
+            .ladder-item.current .prize {
+                color: #fff8ed !important;
+            }
+
+            .toolkit-title {
+                color: #65001d !important;
+            }
+
+            .toolkit-copy {
+                color: #706b6b !important;
+            }
+
+            /* =================================================
+               THEME BUTTON
+            ================================================= */
+
+            div[data-testid="stHorizontalBlock"]:has(
+                .theme-toggle-marker
+            )
+            div[data-testid="stButton"] button {
+                border-color: #c9b99e !important;
+                background: #fffaf0 !important;
+                color: #65001d !important;
+                box-shadow: 0 4px 12px rgba(63, 48, 39, .10) !important;
+            }
+
+            div[data-testid="stHorizontalBlock"]:has(
+                .theme-toggle-marker
+            )
+            div[data-testid="stButton"] button:hover {
+                border-color: #65001d !important;
+                background: #f5e6d1 !important;
+                color: #65001d !important;
+            }
+
+            /* =================================================
+               SIDEBAR BUTTONS
+            ================================================= */
+
+            section[data-testid="stSidebar"]
+            div[data-testid="stButton"] button {
+                border-color: rgba(238, 213, 169, .55) !important;
+                background: transparent !important;
+                color: #f8ead5 !important;
+            }
+
+            section[data-testid="stSidebar"]
+            div[data-testid="stButton"] button:hover {
+                border-color: #f1d69b !important;
+                background: rgba(255, 235, 190, .12) !important;
+                color: #fff8ed !important;
+            }
+
+            section[data-testid="stSidebar"]
+            div[data-testid="stButton"]
+            button[kind="primary"] {
+                background: transparent !important;
+                color: #f8ead5 !important;
+                border: 1px solid rgba(238, 213, 169, .7) !important;
+            }
+
+            section[data-testid="stSidebar"]
+            .safety-note {
+                border-left-color: #e3bd79 !important;
+                background: rgba(255, 230, 177, .10) !important;
+            }
+
+            section[data-testid="stSidebar"]
+            .flag-summary {
+                border-color: rgba(238, 213, 169, .48) !important;
+                background: rgba(83, 0, 24, .35) !important;
+            }
+
+            section[data-testid="stSidebar"]
+            .flag-summary strong {
+                color: #f1cf91 !important;
+            }
+
+            * {
+                scrollbar-color: #9b6d78 #f3f2ef;
+            }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+    # ============================================================
+# THEME TOGGLE STYLES
+# ============================================================
+
+st.markdown(
+    """
+    <style>
+        div[data-testid="stHorizontalBlock"]:has(
+            .theme-toggle-anchor
+        ) {
+            align-items: center;
+            border-bottom: 1px solid var(--rule);
+            margin-bottom: 2.1rem;
+            padding-bottom: 1.35rem;
+        }
+
+        div[data-testid="stHorizontalBlock"]:has(
+            .theme-toggle-anchor
+        ) .topbar {
+            min-height: 58px;
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: 0;
+        }
+
+        div[data-testid="stHorizontalBlock"]:has(
+            .theme-toggle-anchor
+        )
+        div[data-testid="stButton"] {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+        }
+
+        div[data-testid="stHorizontalBlock"]:has(
+            .theme-toggle-anchor
+        )
+        div[data-testid="stButton"] button {
+            min-width: 2.5rem !important;
+            min-height: 2.5rem !important;
+            padding: 0 !important;
+            font-size: 1rem !important;
+        }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+# # ============================================================
+# # TOP BAR / THEME TOGGLE
+# # ============================================================
+
+# theme_icon = (
+#     "☀️"
+#     if st.session_state.theme_mode == "dark"
+#     else "🌙"
+# )
+
+# theme_help = (
+#     "Switch to Light Mode"
+#     if st.session_state.theme_mode == "dark"
+#     else "Switch to Dark Mode"
+# )
+
+# header_brand_col, header_toggle_col = st.columns(
+#     [8, 1],
+#     gap="small",
+# )
+
+# with header_brand_col:
+#     st.markdown(
+#         '<div class="topbar">'
+#         '<div class="brand-lockup">'
+#         '<div class="brand-mark">FM</div>'
+#         '<div>'
+#         '<div class="brand-name">'
+#         'Future<span>Mining</span>'
+#         '</div>'
+#         '<div class="brand-note">'
+#         'The field test of mining intelligence'
+#         '</div>'
+#         '</div>'
+#         '</div>'
+#         '<div class="live-label">'
+#         '<span class="live-dot"></span>'
+#         'GATE question bank · live round'
+#         '</div>'
+#         '</div>',
+#         unsafe_allow_html=True,
+#     )
+
+# with header_toggle_col:
+
+#     st.markdown(
+#         '<span class="theme-toggle-anchor" '
+#         'aria-hidden="true"></span>',
+#         unsafe_allow_html=True,
+#     )
+
+#     if st.button(
+#         theme_icon,
+#         key="theme_toggle_button",
+#         help=theme_help,
+#         use_container_width=False,
+#     ):
+#         st.session_state.theme_mode = (
+#             "light"
+#             if st.session_state.theme_mode == "dark"
+#             else "dark"
+#         )
+
+#         st.rerun()
 
 # ============================================================
 # MATH FORMATTING
@@ -3592,42 +4331,71 @@ with st.sidebar:
 # TOP BAR
 # ============================================================
 
-st.markdown(
-    '<div class="topbar">'
+# ============================================================
+# TOP BAR WITH THEME TOGGLE
+# ============================================================
 
-    '<div class="brand-lockup">'
-
-    '<div class="brand-mark">'
-    'FM'
-    '</div>'
-
-    '<div>'
-
-    '<div class="brand-name">'
-    'Future<span>Mining</span>'
-    '</div>'
-
-    '<div class="brand-note">'
-    'The field test of mining intelligence'
-    '</div>'
-
-    '</div>'
-
-    '</div>'
-
-    '<div class="live-label">'
-
-    '<span class="live-dot"></span>'
-
-    'GATE question bank · live round'
-
-    '</div>'
-
-    '</div>',
-
-    unsafe_allow_html=True,
+theme_icon = (
+    "☀️"
+    if st.session_state.theme_mode == "dark"
+    else "🌙"
 )
 
+theme_help = (
+    "Switch to Light Mode"
+    if st.session_state.theme_mode == "dark"
+    else "Switch to Dark Mode"
+)
+
+header_brand_col, header_toggle_col = st.columns(
+    [8, 1],
+    gap="small",
+)
+
+with header_brand_col:
+    st.markdown(
+        '<div class="topbar">'
+        '<div class="brand-lockup">'
+        '<div class="brand-mark">'
+        'FM'
+        '</div>'
+        '<div>'
+        '<div class="brand-name">'
+        'Future<span>Mining</span>'
+        '</div>'
+        '<div class="brand-note">'
+        'The field test of mining intelligence'
+        '</div>'
+        '</div>'
+        '</div>'
+        '<div class="live-label">'
+        '<span class="live-dot"></span>'
+        'GATE question bank · live round'
+        '</div>'
+        '</div>',
+        unsafe_allow_html=True,
+    )
+
+with header_toggle_col:
+    st.markdown(
+        '<span class="theme-toggle-anchor" '
+        'aria-hidden="true"></span>',
+        unsafe_allow_html=True,
+    )
+
+    if st.button(
+        theme_icon,
+        key="theme_toggle_button",
+        help=theme_help,
+        use_container_width=False,
+    ):
+        st.session_state.theme_mode = (
+            "light"
+            if st.session_state.theme_mode == "dark"
+            else "dark"
+        )
+
+        st.rerun()
 
 # ============================================================
 # MAIN LAYOUT
