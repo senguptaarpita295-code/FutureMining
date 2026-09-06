@@ -25,8 +25,12 @@ def get_config_val(key: str, default: str) -> str:
             pass
     return os.getenv(key, default)
 
-API_BASE_URL = get_config_val("API_BASE_URL", "http://127.0.0.1:8000")
-TIMEOUT = 5.0
+import threading
+
+# Detect if running in local development or production cloud
+DEFAULT_API_URL = "http://127.0.0.1:8000" if (os.getenv("USE_LOCAL_API") == "true") else "https://futuremining-1.onrender.com"
+API_BASE_URL = get_config_val("API_BASE_URL", DEFAULT_API_URL).rstrip("/")
+TIMEOUT = 6.0
 
 DB_USER = get_config_val("DB_USER", "postgres.cjlxqfwwdrrqvjlsjoay")
 DB_PASSWORD = get_config_val("DB_PASSWORD", "K56*#$jkl565p")
@@ -55,6 +59,30 @@ def get_direct_engine():
     except Exception:
         return None
 
+# ============================================================
+# AUTOMATIC BACKGROUND WAKE-UP
+# ============================================================
+_wakeup_started = False
+
+def wake_up_backend_async():
+    """Trigger background wake-up ping to Render if asleep."""
+    global _wakeup_started
+    if _wakeup_started:
+        return
+    _wakeup_started = True
+
+    def _ping():
+        try:
+            requests.get(f"{API_BASE_URL}/health", timeout=60.0)
+        except Exception:
+            pass
+
+    t = threading.Thread(target=_ping, daemon=True)
+    t.start()
+
+# Automatically trigger on module load whenever someone visits the app
+wake_up_backend_async()
+
 
 # ============================================================
 # STATUS & CONNECTION MODE
@@ -62,7 +90,7 @@ def get_direct_engine():
 def get_api_status() -> bool:
     """Check if the FastAPI backend is online and responding."""
     try:
-        resp = requests.get(f"{API_BASE_URL}/health", timeout=1.5)
+        resp = requests.get(f"{API_BASE_URL}/health", timeout=2.5)
         return resp.status_code == 200
     except Exception:
         return False
