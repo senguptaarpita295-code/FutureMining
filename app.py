@@ -3167,11 +3167,29 @@ with st.sidebar:
 
     conn_mode = api_client.get_connection_mode()
     if conn_mode == "fastapi":
-        st.success("🟢 FastAPI + Supabase: **Live** (1,000 Qs)")
+        st.markdown(
+            '<div style="background: rgba(34, 197, 94, 0.12); border: 1px solid rgba(34, 197, 94, 0.35); padding: 0.55rem 0.85rem; border-radius: 9px; margin-bottom: 0.85rem; display: flex; align-items: center; gap: 8px;">'
+            '<span style="display: inline-block; width: 9px; height: 9px; background: #22c55e; border-radius: 50%; box-shadow: 0 0 8px #22c55e;"></span>'
+            '<span style="color: #4ade80; font-size: 0.85rem; font-weight: 600;">Connection: Online · Cloud Synced</span>'
+            '</div>',
+            unsafe_allow_html=True,
+        )
     elif conn_mode == "direct_db":
-        st.success("🟢 Supabase PostgreSQL: **Live** (1,000 Qs)")
+        st.markdown(
+            '<div style="background: rgba(234, 179, 8, 0.12); border: 1px solid rgba(234, 179, 8, 0.35); padding: 0.55rem 0.85rem; border-radius: 9px; margin-bottom: 0.85rem; display: flex; align-items: center; gap: 8px;">'
+            '<span style="display: inline-block; width: 9px; height: 9px; background: #eab308; border-radius: 50%; box-shadow: 0 0 8px #eab308;"></span>'
+            '<span style="color: #facc15; font-size: 0.85rem; font-weight: 600;">Connection: Connected · Direct</span>'
+            '</div>',
+            unsafe_allow_html=True,
+        )
     else:
-        st.warning("🟡 Standalone Mode: Local CSV (800 Qs)")
+        st.markdown(
+            '<div style="background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.35); padding: 0.55rem 0.85rem; border-radius: 9px; margin-bottom: 0.85rem; display: flex; align-items: center; gap: 8px;">'
+            '<span style="display: inline-block; width: 9px; height: 9px; background: #ef4444; border-radius: 50%; box-shadow: 0 0 8px #ef4444;"></span>'
+            '<span style="color: #f87171; font-size: 0.85rem; font-weight: 600;">Connection: Offline Mode</span>'
+            '</div>',
+            unsafe_allow_html=True,
+        )
 
     # User Profile / Authentication Section
     user = st.session_state.get("user")
