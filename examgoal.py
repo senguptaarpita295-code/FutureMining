@@ -62,9 +62,9 @@ def render_practice_mode(question_frame: pd.DataFrame):
             with hdr_col:
                 st.markdown(f"**Q{q_id}. {row.get('topic', 'General')}** &nbsp; <span style='color: #f59e0b; font-size: 0.85rem;'>[Level {row.get('difficulty', 1)}]</span>", unsafe_allow_html=True)
             with badge_col:
-                if st.button("🚩 Flag", key=f"flag_prac_{q_id}", help="Report this question to database"):
+                if st.button("🚩 Flag", key=f"flag_prac_{q_id}", help="Report this question for review"):
                     if api_client.flag_question_server(q_id, "Flagged in practice mode"):
-                        st.toast(f"Question #{q_id} flagged to Supabase review queue!", icon="✅")
+                        st.toast(f"Question #{q_id} reported for review!", icon="✅")
                     else:
                         st.toast("Flag recorded locally.", icon="⚠️")
 
@@ -238,7 +238,7 @@ def render_mock_test_mode(question_frame: pd.DataFrame):
                             mode="mock_test",
                         )
                 st.session_state.mock_saved_to_db = True
-                st.toast("Test results saved to your database profile!", icon="💾")
+                st.toast("Test results saved to your profile!", icon="💾")
 
         m1, m2, m3, m4 = st.columns(4)
         m1.metric("Total Score", f"{total_score} / {total_q}", delta=f"{accuracy}% Accuracy")
@@ -327,9 +327,9 @@ def render_mock_test_mode(question_frame: pd.DataFrame):
                 st.rerun()
 
         with b4:
-            if st.button("🚩 Flag", use_container_width=True, help="Report question to Supabase review queue"):
+            if st.button("🚩 Flag", use_container_width=True, help="Report question for review"):
                 api_client.flag_question_server(cur_q["id"], "Flagged during mock test")
-                st.toast("Flagged to Supabase!", icon="🚩")
+                st.toast("Question flagged for review!", icon="🚩")
 
     with pal_col:
         with st.container(border=True):
@@ -378,7 +378,7 @@ def render_analytics_dashboard():
         <div style="background: linear-gradient(135deg, #1e293b, #0f172a); padding: 1.25rem 1.5rem; border-radius: 12px; margin-bottom: 1.5rem; border: 1px solid #334155;">
             <h2 style="color: #a855f7; margin: 0 0 0.25rem 0; font-size: 1.5rem;">📊 GATEMining Performance & Progress Analytics</h2>
             <p style="color: #94a3b8; margin: 0; font-size: 0.9rem;">
-                Real-time tracking from your Supabase PostgreSQL profile: topic strengths, mock test scores, and revision priorities.
+                Real-time tracking of your personal progress: topic strengths, mock test scores, and revision priorities.
             </p>
         </div>
     """, unsafe_allow_html=True)
