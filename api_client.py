@@ -85,30 +85,44 @@ wake_up_backend_async()
 
 
 # ============================================================
-# STATUS & CONNECTION MODE
+# STATUS & CONNECTION MODE (Cached to eliminate lag)
 # ============================================================
+_cached_conn_mode = None
+_cached_mode_timestamp = 0.0
+
 def get_api_status() -> bool:
     """Check if the FastAPI backend is online and responding."""
     try:
-        resp = requests.get(f"{API_BASE_URL}/health", timeout=2.5)
+        resp = requests.get(f"{API_BASE_URL}/health", timeout=2.0)
         return resp.status_code == 200
     except Exception:
         return False
 
-def get_connection_mode() -> str:
-    """Returns 'fastapi' if backend is live, 'direct_db' if Supabase direct is available, or 'offline'."""
+def get_connection_mode(force_refresh: bool = False) -> str:
+    """Returns 'fastapi', 'direct_db', or 'offline' (cached for 60s for speed)."""
+    global _cached_conn_mode, _cached_mode_timestamp
+    import time
+    now = time.time()
+    if not force_refresh and _cached_conn_mode is not None and (now - _cached_mode_timestamp) < 60:
+        return _cached_conn_mode
+
     if get_api_status():
-        return "fastapi"
-    eng = get_direct_engine()
-    if eng:
-        try:
-            from sqlalchemy import text
-            with eng.connect() as conn:
-                conn.execute(text("SELECT 1"))
-            return "direct_db"
-        except Exception:
-            pass
-    return "offline"
+        _cached_conn_mode = "fastapi"
+    else:
+        eng = get_direct_engine()
+        if eng:
+            try:
+                from sqlalchemy import text
+                with eng.connect() as conn:
+                    conn.execute(text("SELECT 1"))
+                _cached_conn_mode = "direct_db"
+            except Exception:
+                _cached_conn_mode = "offline"
+        else:
+            _cached_conn_mode = "offline"
+
+    _cached_mode_timestamp = now
+    return _cached_conn_mode
 
 
 # ============================================================
@@ -395,14 +409,14 @@ def verify_answer_server(question_id: int, selected_option: int) -> Optional[Dic
 # ============================================================
 # PROGRESS TRACKING & ANALYTICS
 # ============================================================
-def record_question_attempt(
+def _record_question_attempt_sync(
     user_id: int,
     question_id: int,
     selected_option: int,
     is_correct: bool,
     mode: str = "practice"
 ) -> bool:
-    """Record single question attempt for a logged-in user."""
+    """Internal synchronous saver for question attempts."""
     try:
         payload = {
             "user_id": user_id,
@@ -441,6 +455,25 @@ def record_question_attempt(
             pass
 
     return False
+
+def record_question_attempt(
+    user_id: int,
+    question_id: int,
+    selected_option: int,
+    is_correct: bool,
+    mode: str = "practice",
+    async_save: bool = True
+) -> bool:
+    """Record single question attempt (runs in background for zero lag)."""
+    if async_save:
+        t = threading.Thread(
+            target=_record_question_attempt_sync,
+            args=(user_id, question_id, selected_option, is_correct, mode),
+            daemon=True
+        )
+        t.start()
+        return True
+    return _record_question_attempt_sync(user_id, question_id, selected_option, is_correct, mode)
 
 def save_test_session(
     user_id: int,
