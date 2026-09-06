@@ -11,7 +11,7 @@ OPTION_LETTERS = ("A", "B", "C", "D")
 def render_practice_mode(question_frame: pd.DataFrame):
     st.markdown("""
         <div style="background: linear-gradient(135deg, #1e293b, #0f172a); padding: 1.25rem 1.5rem; border-radius: 12px; margin-bottom: 1.5rem; border: 1px solid #334155;">
-            <h2 style="color: #38bdf8; margin: 0 0 0.5rem 0; font-size: 1.5rem;">📚 ExamGoal Practice Portal</h2>
+            <h2 style="color: #38bdf8; margin: 0 0 0.5rem 0; font-size: 1.5rem;">📚 GATEMining Practice Portal</h2>
             <p style="color: #94a3b8; margin: 0; font-size: 0.95rem;">
                 Topic-wise GATE Mining questions with instant answer verification, explanations, and database review reporting.
             </p>
@@ -118,7 +118,7 @@ def render_mock_test_mode(question_frame: pd.DataFrame):
         <div style="background: linear-gradient(135deg, #1e293b, #0f172a); padding: 1.25rem 1.5rem; border-radius: 12px; margin-bottom: 1.5rem; border: 1px solid #334155;">
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <div>
-                    <h2 style="color: #10b981; margin: 0 0 0.25rem 0; font-size: 1.5rem;">⏱️ ExamGoal GATE Mock Test</h2>
+                    <h2 style="color: #10b981; margin: 0 0 0.25rem 0; font-size: 1.5rem;">⏱️ GATEMining Mock Test</h2>
                     <p style="color: #94a3b8; margin: 0; font-size: 0.9rem;">
                         Official GATE pattern: +1.0 Mark for Correct, -0.33 Mark for Incorrect. Color-coded question palette & database score saving.
                     </p>
@@ -376,7 +376,7 @@ def render_mock_test_mode(question_frame: pd.DataFrame):
 def render_analytics_dashboard():
     st.markdown("""
         <div style="background: linear-gradient(135deg, #1e293b, #0f172a); padding: 1.25rem 1.5rem; border-radius: 12px; margin-bottom: 1.5rem; border: 1px solid #334155;">
-            <h2 style="color: #a855f7; margin: 0 0 0.25rem 0; font-size: 1.5rem;">📊 GATE Performance & Progress Analytics</h2>
+            <h2 style="color: #a855f7; margin: 0 0 0.25rem 0; font-size: 1.5rem;">📊 GATEMining Performance & Progress Analytics</h2>
             <p style="color: #94a3b8; margin: 0; font-size: 0.9rem;">
                 Real-time tracking from your Supabase PostgreSQL profile: topic strengths, mock test scores, and revision priorities.
             </p>
