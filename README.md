@@ -53,27 +53,37 @@ Built for continuous availability with automatic three-tier fallback routing:
 ## 🏗️ System Architecture
 
 ```mermaid
-graph TD
-    User([Aspirant / User]) -->|HTTPS| Streamlit[Streamlit Frontend app.py]
+flowchart TD
+    User["👤 Aspirant / User"] -->|"HTTPS"| Streamlit["💻 Streamlit Frontend (app.py)"]
     
-    subgraph Frontend Layer
-        Streamlit --> AudioEngine[In-Memory Audio Synthesizer]
-        Streamlit --> ExamGoal[ExamGoal Mock & Practice Module]
-        Streamlit --> MathJax[LaTeX Math Engine]
+    subgraph FrontendLayer["Frontend Modules"]
+        AudioEngine["🎵 In-Memory Audio Synthesizer"]
+        ExamGoal["📝 ExamGoal Practice & Mock Test"]
+        LaTeXEngine["📐 LaTeX Math Engine"]
     end
 
-    Streamlit -->|api_client.py| Router{Multi-Tier Fallback Router}
-    
-    Router -->|Primary: REST| FastAPI[FastAPI Backend on Render]
-    Router -->|Secondary: Direct SQL| Supabase[(Supabase PostgreSQL)]
-    Router -->|Tertiary: Offline| CSV[(Bundled CSV Dataset)]
+    Streamlit --> AudioEngine
+    Streamlit --> ExamGoal
+    Streamlit --> LaTeXEngine
 
-    FastAPI -->|SQLAlchemy 2.0| Supabase
+    Streamlit -->|"api_client.py"| Router{"🛡️ 3-Tier Fallback Router"}
 
-    subgraph Data & ML Engineering
-        RawData[800 Raw GATE Questions] --> NLP[NLP Feature Extraction & Complexity Scoring]
-        NLP --> Ridge[Ridge Regression + Readability Ensemble]
-        Ridge --> ClassifiedData[15-Tier Classified Question Bank]
+    subgraph BackendLayer["Backend & Storage"]
+        FastAPI["⚡ FastAPI Backend (Render)"]
+        Supabase[("🗄️ Supabase PostgreSQL")]
+        CSV[("📁 Bundled CSV Dataset")]
+    end
+
+    Router -->|"1. REST API"| FastAPI
+    Router -->|"2. Direct SQL"| Supabase
+    Router -->|"3. Offline Mode"| CSV
+
+    FastAPI -->|"SQLAlchemy 2.0"| Supabase
+
+    subgraph MLLayer["Data & ML Engineering"]
+        RawData["📄 Raw GATE Questions"] --> NLP["🔍 NLP & Complexity Scoring"]
+        NLP --> Ridge["📈 Ridge Regression Model"]
+        Ridge --> ClassifiedData["🎯 15-Tier Classified Bank"]
     end
 ```
 
@@ -141,7 +151,6 @@ pip install -r requirements.txt
 # Run the Streamlit application
 streamlit run app.py
 ```
-*The app will automatically run using the online API or local CSV data!*
 
 ### 3. Backend Setup (FastAPI - Optional for local development)
 ```bash
