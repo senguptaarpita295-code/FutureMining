@@ -5,7 +5,7 @@
 [![Database](https://img.shields.io/badge/Database-Supabase%20PostgreSQL-3ECF8E.svg?logo=supabase&logoColor=white)](https://supabase.com)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-blue.svg?logo=python&logoColor=white)](https://python.org)
 [![Machine Learning](https://img.shields.io/badge/ML-NLP%20%2B%20Ridge%20Regression-orange.svg?logo=scikit-learn&logoColor=white)](https://scikit-learn.org/)
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE.md)
+[![License: Proprietary](https://img.shields.io/badge/License-Proprietary%20%2F%20All%20Rights%20Reserved-red.svg)](LICENSE.md)
 
 > **FutureMining** is a full-stack, gamified learning and exam preparation platform built specifically for **GATE Mining Engineering** aspirants. It combines an interactive, high-stakes game-show format (*Kaun Banega Crorepati* style) with rigorous official GATE-pattern timed mock tests, dynamic analytics, and machine learning difficulty calibration.
 
@@ -188,19 +188,42 @@ The FastAPI backend exposes comprehensive RESTful services documented interactiv
 
 ---
 
-## 👥 The Team
+## 👨‍🏫 Project Mentorship & Guidance
 
-This project was conceived, designed, and developed collaboratively by:
+Heartfelt thanks and sincere gratitude to our esteemed mentor and guide:
 
-| Team Member | Role & Key Contributions | LinkedIn |
-| :--- | :--- | :--- |
-| **Sayandeep Guin** | **Frontend Development** — Streamlit UI/UX design, custom styling, game show flow, and responsive components | [![LinkedIn](https://img.shields.io/badge/LinkedIn-Profile-blue?logo=linkedin)](https://www.linkedin.com/in/sayandeep-guin-041576356/) |
-| **Sabuj Kishore Mondal** | **Frontend Development** — UI mechanics, interactive question palette, ExamGoal mock tests, and audio synthesis | [![LinkedIn](https://img.shields.io/badge/LinkedIn-Profile-blue?logo=linkedin)](https://www.linkedin.com/in/sabuj-m-392855381/) |
-| **Sagar Pal** | **Database Architecture** — Schema modeling, PostgreSQL integration on Supabase, data migrations, and integrity audits | [![LinkedIn](https://img.shields.io/badge/LinkedIn-Profile-blue?logo=linkedin)](https://www.linkedin.com/in/sagar-pal-681912383/) |
-| **Arpita Sengupta** | **Backend Architecture** — FastAPI development, REST API design, multi-tier fallback routing, auth & cloud deployment | [![LinkedIn](https://img.shields.io/badge/LinkedIn-Profile-blue?logo=linkedin)](https://www.linkedin.com/in/arpita-sengupta-4085913ab/) |
+### **Dr. LINGAMPALLY SAI VINAY**
+*Associate Professor, Department of Mining Engineering*  
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Profile-blue?logo=linkedin)](https://www.linkedin.com/in/dr-lingampally-sai-vinay-110638118/)
+
+> *"Project Conception, Supervision, Technical Guidance & Continuous Motivation"*
+>
+> We extend our deepest gratitude to our mentor, **Dr. Lingampally Sai Vinay**, for conceptualizing the foundational idea of transforming GATE Mining preparation into an interactive, gamified platform, and for his supervision, domain guidance, and encouragement throughout every phase of conception, system design, and execution. His technical insights in mining engineering, constructive feedback, and academic mentorship were instrumental in navigating complex domain challenges and bringing **FutureMining** to reality.
 
 ---
 
-## 📜 License
+## 👥 The Team & Key Contributions
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
+FutureMining is the result of close multidisciplinary teamwork, combining game design, NLP machine learning, database engineering, and distributed backend systems:
+
+| Team Member | Domain & Role | Key Architectural & Engineering Contributions | Profile |
+| :--- | :--- | :--- | :--- |
+| **Sayandeep Guin** | **Core Product, Game Logic & NLP Engineering** | • Architected the end-to-end technical foundation, game architecture, and interactive state management<br>• Designed the Streamlit UI/UX, responsive styling, and dynamic KBC game show engine<br>• Engineered the OCR and Regex parsing pipeline to extract and validate GATE Mining PDFs into structured CSV datasets<br>• Co-developed the NLP difficulty pipeline (TF-IDF, Gunning Fog index, Ridge Regression) calibrating mining subjects into a 15-tier difficulty matrix | [![LinkedIn](https://img.shields.io/badge/LinkedIn-Profile-blue?logo=linkedin)](https://www.linkedin.com/in/sayandeep-guin-041576356/) |
+| **Sabuj Kishore Mondal** | **Core Product, Game Logic & NLP Engineering** | • Co-architected the technical foundation, interactive UI components, and state synchronization<br>• Built the ExamGoal-style exam simulation engine, timed mock tests, and color-coded status palette<br>• Engineered the procedural in-memory audio synthesizer generating harmonic audio cues with zero external audio assets<br>• Co-developed the PDF-to-CSV OCR/Regex pipeline and NLP feature engineering pipeline for difficulty classification | [![LinkedIn](https://img.shields.io/badge/LinkedIn-Profile-blue?logo=linkedin)](https://www.linkedin.com/in/sabuj-m-392855381/) |
+| **Sagar Pal** | **Database Architecture** | • Designed and modeled the relational database schema for questions, categories, attempts, and test sessions<br>• Architected Supabase PostgreSQL clustering, connection pooling, and live cloud synchronization<br>• Managed data migrations and built automated database integrity audit scripts (`integrity_check.py`) | [![LinkedIn](https://img.shields.io/badge/LinkedIn-Profile-blue?logo=linkedin)](https://www.linkedin.com/in/sagar-pal-681912383/) |
+| **Arpita Sengupta** | **Backend Architecture & APIs** | • Engineered high-performance FastAPI REST services with Pydantic validation and SQLAlchemy ORM<br>• Designed and implemented the resilient 3-tier automatic failover routing (FastAPI ➡️ Supabase Direct ➡️ Offline Bundled CSV)<br>• Developed salted authentication, session management, review moderation endpoints, and cloud deployment on Render | [![LinkedIn](https://img.shields.io/badge/LinkedIn-Profile-blue?logo=linkedin)](https://www.linkedin.com/in/arpita-sengupta-4085913ab/) |
+
+---
+
+## 📜 Intellectual Property & Commercialization License
+
+Copyright © 2026 FutureMining Project Team & Dr. Lingampally Sai Vinay. All rights reserved.
+
+> [!IMPORTANT]
+> **Commercialization & Mobile Application Notice**  
+> This project, its source code, architecture, NLP difficulty pipelines, and question datasets are **proprietary and confidential**. FutureMining is slated for commercialization and dedicated mobile application release under the supervision of **Dr. Lingampally Sai Vinay** and the core development team.
+
+- **All Commercial & Mobile Rights Reserved**: Unauthorized reproduction, redistribution, commercial deployment, sublicensing, reverse engineering, or publishing on mobile app stores (Google Play Store, Apple App Store, etc.) or web SaaS platforms without prior explicit written permission from the copyright owners is strictly prohibited.
+- **Academic & Portfolio Evaluation**: Inspection and non-commercial evaluation of this repository is permitted solely for academic review and portfolio assessment.
+
+For full legal terms and conditions, please consult [LICENSE.md](LICENSE.md).
