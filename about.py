@@ -89,6 +89,9 @@ ABOUT_CONTENT = {
                 "connection pooling & live cloud synchronization",
                 "Managed data migrations & release-time "
                 "schema updates",
+                "Developed the interactive Bieniawski Rock Mass Rating "
+                "(RMR) Geotechnical Calculator "
+                "(https://rmr-calculator-website--munna44sagarpal.replit.app/)",
             ],
         },
         {

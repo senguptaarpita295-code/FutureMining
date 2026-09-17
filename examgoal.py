@@ -18,6 +18,13 @@ def render_practice_mode(question_frame: pd.DataFrame):
         </div>
     """, unsafe_allow_html=True)
 
+    st.link_button(
+        "🪨 Launch Bieniawski RMR Calculator (Rock Mechanics) ↗",
+        url="https://rmr-calculator-website--munna44sagarpal.replit.app/",
+        use_container_width=True,
+        help="Open the interactive Bieniawski Rock Mass Rating (RMR) Calculator in a new tab",
+    )
+
     # Filter row
     f_col1, f_col2, f_col3 = st.columns([2, 1.2, 1.5])
 
@@ -128,6 +135,13 @@ def render_mock_test_mode(question_frame: pd.DataFrame):
             </div>
         </div>
     """, unsafe_allow_html=True)
+
+    st.link_button(
+        "🪨 Launch Bieniawski RMR Calculator (Rock Mechanics) ↗",
+        url="https://rmr-calculator-website--munna44sagarpal.replit.app/",
+        use_container_width=True,
+        help="Open the interactive Bieniawski Rock Mass Rating (RMR) Calculator in a new tab",
+    )
 
     # Mock Test Configuration (before test starts)
     if "mock_test_started" not in st.session_state:

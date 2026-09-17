@@ -1,3 +1,4 @@
+# FutureMining v2.2 with Embedded RMR Calculator
 from __future__ import annotations
 
 import base64
@@ -19,6 +20,7 @@ import streamlit as st
 import api_client
 import examgoal
 import about
+import rmr_calculator
 
 try:
     from extra_streamlit_components import CookieManager
@@ -819,7 +821,10 @@ st.markdown(
 
         section[data-testid="stSidebar"]
         div[data-testid="stButton"]
-        button {
+        button,
+        section[data-testid="stSidebar"]
+        div[data-testid="stLinkButton"]
+        a {
             min-height: 2.35rem;
 
             border-radius: 9px;
@@ -830,7 +835,10 @@ st.markdown(
 
         section[data-testid="stSidebar"]
         div[data-testid="stButton"]
-        button:hover:not(:disabled) {
+        button:hover:not(:disabled),
+        section[data-testid="stSidebar"]
+        div[data-testid="stLinkButton"]
+        a:hover {
             border-color: var(--gold-light);
 
             box-shadow:
@@ -3892,7 +3900,7 @@ def format_math_text(value: object) -> str:
 # ============================================================
 
 @st.cache_data(show_spinner=False)
-def load_questions() -> pd.DataFrame:
+def load_questions(_version: str = "v2.2_rmr") -> pd.DataFrame:
     """Load questions instantly from local dataset with caching (0.0s lag)."""
     # 1. Prefer exported comprehensive dataset
     q1000_path = Path(__file__).parent / "data" / "gate_questions_1000.csv"
@@ -4886,6 +4894,13 @@ def render_landing_page() -> None:
                 )
                 st.rerun()
 
+            st.link_button(
+                "🪨 Launch RMR Calculator ↗",
+                url="https://rmr-calculator-website--munna44sagarpal.replit.app/",
+                use_container_width=True,
+                help="Open the Bieniawski Rock Mass Rating (RMR) Calculator in a new tab",
+            )
+
             st.markdown(
                 "<div style='text-align: center; "
                 f"font-size: .72rem; color: {landing_sub};'>"
@@ -5064,6 +5079,20 @@ with st.sidebar:
                     else:
                         st.warning("Please enter username and password")
 
+    st.markdown(
+        """
+        <div style="margin: 0.5rem 0 0.85rem 0; padding: 0.65rem 0.85rem; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.45); border-radius: 10px;">
+            <div style="font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; color: #38bdf8; font-weight: 700; margin-bottom: 0.35rem;">
+                🛠️ GEOTECHNICAL TOOL
+            </div>
+            <a href="https://rmr-calculator-website--munna44sagarpal.replit.app/" target="_blank" style="display: block; text-align: center; background: #0284c7; color: #ffffff; padding: 0.45rem 0.75rem; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 0.88rem;">
+                🪨 Bieniawski RMR Calculator ↗
+            </a>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
     app_mode = st.radio(
         "🎯 Select Mode:",
         [
@@ -5072,9 +5101,26 @@ with st.sidebar:
             "⏱️ GATEMining Mock Test",
             "📊 GATE Analytics & History",
             "ℹ️ About the Developers",
+            "🪨 RMR Calculator",
         ],
         index=0,
         key="global_app_mode",
+    )
+
+    st.divider()
+
+    st.markdown(
+        '<div class="sidebar-section-title">'
+        '🧮 Mining Tools & Calculators'
+        '</div>',
+        unsafe_allow_html=True,
+    )
+
+    st.link_button(
+        "🪨 Launch RMR Calculator ↗",
+        url="https://rmr-calculator-website--munna44sagarpal.replit.app/",
+        use_container_width=True,
+        help="Directly open the Bieniawski Rock Mass Rating (RMR) Calculator in a new tab",
     )
 
     st.divider()
@@ -5567,7 +5613,7 @@ with st.sidebar:
 # TOP BAR
 # ============================================================
 
-topbar_left, topbar_right = st.columns([8, 1])
+topbar_left, topbar_tool, topbar_right = st.columns([6, 2.2, 0.8])
 
 with topbar_left:
     st.markdown(
@@ -5600,6 +5646,18 @@ with topbar_left:
         '</div>',
 
         unsafe_allow_html=True,
+    )
+
+with topbar_tool:
+    st.markdown(
+        "<div style='height:8px;'></div>",
+        unsafe_allow_html=True,
+    )
+    st.link_button(
+        "🪨 RMR Calculator ↗",
+        url="https://rmr-calculator-website--munna44sagarpal.replit.app/",
+        use_container_width=True,
+        help="Launch the Bieniawski Rock Mass Rating (RMR) Calculator in a new tab",
     )
 
 with topbar_right:
@@ -5649,6 +5707,9 @@ elif current_mode == "📊 GATE Analytics & History":
 
 elif current_mode == "ℹ️ About the Developers":
     about.render_about_page(light=IS_LIGHT_THEME)
+
+elif current_mode == "🪨 RMR Calculator":
+    rmr_calculator.render_rmr_calculator(light=IS_LIGHT_THEME)
 
 else:
     stage, ladder = st.columns(
@@ -5733,8 +5794,8 @@ else:
                 )
 
 
-            flag_col, flag_status_col = (
-                st.columns([1.15, 2.85])
+            flag_col, flag_status_col, rmr_stage_col = (
+                st.columns([1.15, 1.7, 1.15])
             )
 
 
@@ -5794,6 +5855,16 @@ else:
                     + "</div>",
 
                     unsafe_allow_html=True,
+                )
+
+
+            with rmr_stage_col:
+
+                st.link_button(
+                    "🪨 RMR Calculator ↗",
+                    url="https://rmr-calculator-website--munna44sagarpal.replit.app/",
+                    use_container_width=True,
+                    help="Open the interactive Rock Mass Rating (RMR) Calculator in a new tab",
                 )
 
 
