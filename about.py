@@ -82,6 +82,10 @@ ABOUT_CONTENT = {
             "linkedin": (
                 "https://www.linkedin.com/in/sagar-pal-681912383/"
             ),
+            "project_url": (
+                "https://rmr-calculator-website--munna44sagarpal.replit.app/"
+            ),
+            "project_label": "RMR Calculator",
             "contributions": [
                 "Designed the relational schema for questions, "
                 "categories, attempts & test sessions",
@@ -958,12 +962,24 @@ def render_about_page(light: bool = False) -> None:
             for c in (dev.get("contributions") or [])
         )
         card_extra = ""
+        links = []
         if linkedin:
-            card_extra += (
+            links.append(
                 f"<a class=\"fm-about-linkedin\" href=\"{linkedin}\" "
                 "target=\"_blank\" rel=\"noopener\">"
                 "<strong>in</strong>&nbsp;&nbsp;LinkedIn</a>"
             )
+        project_url = dev.get("project_url")
+        project_label = dev.get("project_label")
+        if project_url and project_label:
+            links.append(
+                f"<a class=\"fm-about-linkedin\" href=\"{_html.escape(project_url)}\" "
+                "target=\"_blank\" rel=\"noopener\" "
+                "style=\"background: #0284c7; box-shadow: 0 8px 22px rgba(2, 132, 199, .35);\">"
+                f"<strong>🪨</strong>&nbsp;&nbsp;{_html.escape(project_label)} ↗</a>"
+            )
+        if links:
+            card_extra += f"<div style=\"display:flex; flex-wrap:wrap; gap:8px; align-items:center;\">{''.join(links)}</div>"
         if items:
             card_extra += (
                 "<details class=\"fm-about-contrib\">"
